@@ -1,0 +1,344 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-05-11"
+---
+
+# Statystyka opisowa
+
+## Laboratorium 02
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+color_palette2 <- c("#92a1c3", "#bed1e3", "#f3a0ad", "#ffd3dd", "#cca1c9")
+stacje <- read.csv2("stacje.csv")
+butelki <- read.csv2("butelki.csv")
+```
+
+### Zadanie 1.
+
+Badania demograficzne przeprowadzone w 1988 roku w USA wykazały, że wśród kobiet (mających 18 i więcej lat) było: 17364 tyś. panien, 56128 tyś. mężatek, 11239 tyś. wdów i 8170 tyś. rozwódek.
+
+a)  Utworzyć wykres kołowy dla stanu cywilnego danej grupy kobiet. Porównać różne formy opisu wykresu.
+
+```{r}
+liczba_kobiet <- c(17364, 56128, 11239, 8170)
+stan <- c("panna", "mężatka", "wdowa", "rozwodka")
+wszystkie_kobiety <- sum(liczba_kobiet)
+procent_kobiety <- round(liczba_kobiet*100/wszystkie_kobiety, 2)
+
+pie(liczba_kobiet, labels = paste(procent_kobiety, "%", sep = ""), 
+    col = color_palette2[1:4])
+legend("topright",stan, fill = color_palette2[1:4])
+title("Stan cywilny kobiet w USA")
+
+pie(liczba_kobiet, labels = stan, col = color_palette2[1:4])
+legend("topright", paste(procent_kobiety, "%", sep = ""), fill = color_palette2[1:4])
+title("Stan cywilny kobiet w USA")
+
+pie(liczba_kobiet, 
+    labels = paste(stan, paste(procent_kobiety, "%", sep = ""), sep = "\n"), 
+    col = color_palette2[1:4])
+title("Stan cywilny kobiet w USA")
+```
+
+b)  Utworzyć wykres słupkowy dla stanu cywilnego danej grupy kobiet. Porównać różne rodzaje wykresów i formy ich opisu.
+
+```{r}
+barplot(liczba_kobiet, names = stan, col = color_palette2[4])
+title("Stan cywilny kobiet w USA")
+barplot(liczba_kobiet, names = stan, col = color_palette2[1:4],
+        legend = liczba_kobiet)
+title("Stan cywilny kobiet w USA")
+barplot(procent_kobiety, names = stan, col = color_palette2[1:4],
+        legend = paste(procent_kobiety, "%", sep = ""))
+title("Stan cywilny kobiet w USA")
+```
+
+### Zadanie 2.
+
+Koncern paliwowy planuje otworzyć nową stację benzynową w pewnym mieście. Rozważane są cztery możliwe lokalizacje stacji – w południowej, północnej, zachodniej i wschodniej dzielnicy miasta (oznaczenia dzielnic: S – południowa, N – północna, W – zachodnia i E – wschodnia). W ramach badania opinii społecznej odnośnie preferowanej lokalizacji stacji zapytano o to tysiąc kierowców. Ich odpowiedzi znajdują się w pliku stacje.csv. Utworzyć wykres słupkowy i wykres kołowy dla badanych preferencji.
+
+```{r}
+# do uzyskania rozkladu udzielanych informacji uzywamy funkcji table
+# funkcja table zlicza wystabienie kazdej kombinacji faktorow (unikatowych zmiennych)
+stacje_summarised <- table(stacje)
+
+# funkcja prop.table zwroci nam proporcje miedzy wartosciami (powie nam jaka czescia calosci
+# jest dana wartosc)
+
+pie(stacje_summarised, col = color_palette2[1:4])
+legend("topright", legend = prop.table(stacje_summarised)*100, 
+       fill = color_palette2[1:4])
+title("Badanie preferencje lokalizacji stacji")
+
+barplot(stacje_summarised, col = color_palette2[1:4], 
+        legend.text = stacje_summarised, 
+        args.legend = list(x = "topleft"))
+title("Badanie preferencje lokalizacji stacji")
+barplot(prop.table(stacje_summarised)*100, col = color_palette2[1:4], 
+        legend.text = paste(prop.table(stacje_summarised)*100, "%", sep = ""), 
+        args.legend = list(x = "topleft"))
+title("Badanie preferencje lokalizacji stacji")
+```
+
+### Zadanie 3.
+
+Poniższe dane odpowiadają notowaniom pewnej spółki (w PLN) w kolejnych 20 dniach:
+
+23.30 24.50 25.30 25.30 24.30 24.80 25.20 24.50 24.60 24.10
+
+24.30 26.10 23.10 25.50 22.60 24.60 24.30 25.40 25.20 26.80
+
+Utworzyć wykres cen akcji jako funkcję czasu (szereg czasowy).
+
+```{r, warning=FALSE}
+# do zaczytania danych z pliku PDF (linie tekstu) wykorzystamy funkcje scan
+
+notowania_spolki <- scan(nlines = 2)
+23.30 24.50 25.30 25.30 24.30 24.80 25.20 24.50 24.60 24.10
+24.30 26.10 23.10 25.50 22.60 24.60 24.30 25.40 25.20 26.80 
+
+# w ogolnosci scan nie zadziala w RMarkdown
+# RStdio uzywa nieinteraktywnym sesji R do kompliacji plikow R Markdown, co w skrocie 
+# oznacza, ze funkcje wymagajce ludzkiej interakcij nie zadzialaja
+# mozna to uminac wpisujac do konsoli rmarkdown::render("nazwapliku.Rmd") i nastepnie z
+# poziomu konsoli wpisywac linie z pliku 
+
+```
+
+```{r}
+plot(x = 1:20, y = notowania_spolki, # x, y to przekazanie argumentow
+     type = "l", col = color_palette2[1], lwd = 2, # rysujemy linie - tutaj l czyli sama linia
+                                                   # bez punktow
+     xlab = "dzień", ylab = "PLN", xaxt = "n") # zmieniamy nazwy osi, usuwamy podzialke na 
+                                               # OX bo bedziemy ja potem zmieniac
+title("Notowania spolki (PLN) w kolejnych 20 dniach")
+axis(side=1, at=1:20, cex.axis = 0.8) # ustawienie nowej podzialki na osi OX
+
+plot(x = 1:20, y = notowania_spolki,
+     type = "b", col = color_palette2[5], lwd = 2, 
+     xlab = "dzień", ylab = "PLN", xaxt = "n")
+title("Notowania spolki (PLN) w kolejnych 20 dniach")
+axis(side=1, at=1:20, cex.axis = 0.8)
+
+# w przypadku szeregow czasowych nie zaczynanie od 0 nie jest podwalceniem zasad
+# dobrego wychowania w tworzenia wykresow
+```
+
+### Zadanie 4.
+
+Wytrzymałość na ciśnienie wewnętrzne szkła butelek jest ich ważną charakterystyką jakościową. W celu zbadania wytrzymałości butelek umieszcza się je w maszynie hydrostatycznej, po czym zwiększa się ciśnienie aż do zniszczenia butelki.
+
+Plik butelki.csv zawiera dane opisujące graniczną wytrzymałość na ciśnienie wewnętrzne szkła badanej partii butelek (mierzone w psi).
+
+a)  Utworzyć zmienną o nazwie cisnienie, opisującą wytrzymałość na ciśnienie wewnętrzne szkła butelek mierzone w MPa Wskazówka: 1psi = 0.0068947 MPa
+
+    ```{r}
+    cisnienie <- butelki$strength*0.0068947
+    ```
+
+<!-- -->
+
+b)  Utworzyć histogram dla danych opisujących wytrzymałość butelek. Prześledzić wpływ liczby klas na kształt histogramu. Porównać różne rodzaje histogramów.
+
+    ```{r}
+    hist(cisnienie, col = color_palette2[2],
+         main = "wytrzymałość butelek", xlab = "ciśnienie", ylab = "liczba butelek")
+    hist(cisnienie, breaks = 4, col = color_palette2[2],
+         main = "wytrzymałość butelek", xlab = "ciśnienie", ylab = "liczba butelek")
+    hist(cisnienie, breaks = 10, col = color_palette2[2],
+         main = "wytrzymałość butelek", xlab = "ciśnienie", ylab = "liczba butelek")
+    hist(cisnienie, breaks = 20, col = color_palette2[2],
+         main = "wytrzymałość butelek", xlab = "ciśnienie", ylab = "liczba butelek")
+    # zuwazmy, ze dla zbyt duzej ilosci podzialow wykres staje sie nieczytelny - pojawia sie 
+    # za duzo punktow skoku co znacznie zakloca czytelnosc wykresu
+    hist(cisnienie, breaks = "FD", col = color_palette2[2],
+         main = "wytrzymałość butelek", xlab = "ciśnienie", ylab = "liczba butelek")
+
+    # Reguła Freedmana-Diaconisa bierze pod uwagę roznice miedzy histogramem danych empirycznych a 
+    # gestoscia teoretycznego rozkładu prawdopodobienstwa Stara sie dobrac taka szerokosc
+    # przedzialow, która minimalizuje roznice miedzy dwoma rodzajami rozkladu, przy jednoczesnym 
+    # zachowaniu odpowiedniej szczegolowosci w analizie danych
+    # Reguła pomaga w dobieraniu optymalnej szerokosci przedzialow histogramu tak, 
+    # aby mozliwie dokładnie odzwierciedlaly one charakterystykę danych empirycznych i były 
+    # porownywalne z teoretycznym modelem rozkładu prawdopodobieństwa
+    ```
+
+<!-- -->
+
+c)  Utworzyć wykres łamanej liczności i nałożyć go na wykres histogramu.
+
+    ```{r}
+    h <- hist(cisnienie, breaks = "FD", col = color_palette2[2],
+         main = "wytrzymałość butelek", xlab = "ciśnienie", ylab = "liczba butelek")
+    lines(x = h$mids, y = h$counts, col = color_palette2[4], lwd = 2)
+    # czyli na histogram nakladamy wykres liniowy - bedacy polaczeniem punktow gdzie x to
+    # sreodek kazdego z przedzialow, a y to wysokosc kazdego slupka
+    ```
+
+<!-- -->
+
+d)  Utworzyć wykres łodygowo-liściowy.
+
+    ```{r}
+    stem(cisnienie)
+    # co robi to cudo?
+    # bierzemy dwie pierwsze liczby dla kazdego rekordu (to sa te z lewej)
+    # teraz kazda liczba jest zaokraglana tak, ze ma trzy miejsca po przecinku
+    # czyli wartosci z prawej to trzecia wartosc dla kazdego rekordu
+    stem(cisnienie, scale = 2) # scale mowi jak dluga bedzie lodyga
+    # ustawiajac scale = 2 zwiekszylismy podzialke: zamiast 12 14 ... 24 mamy 12 13 14 15 ... 24
+    # biorac scale = 3 bedziemy miely 12 12 13 13 14 14 ... 24 (czyli w srodku bedziemy mieli
+    # podzial czy trzecia wartosc < 5 czy > 5
+    stem(cisnienie, scale = 3)
+    ```
+
+<!-- -->
+
+e)  Utworzyć i zinterpretować wykres skrzynkowy dla wytrzymałości butelek.
+
+    ```{r}
+    boxplot(cisnienie, horizontal = T, xlab = "ciśnienie", col = color_palette2[5])
+
+    # jak rozumieć ten wykres?
+    # kropki to outliers
+    # czarna gruba kreska to mediana
+    # pudelko to wartosci z kwartałów Q1-Q3
+    # wartosci na przerywanej linii zakonczone kreskami to wartosci z nastepujacego przedzialu:
+    # [min, max] gdzie
+    # min = Q1 - 1.5*IQR 
+    # max = Q3 + 1.5*IQR 
+    # IQR = Q3 - Q1
+    ```
+
+<!-- -->
+
+f)  Wyznaczyć i zinterpretować podstawowe statystyki próbkowe dla danych opisujących wytrzymałość butelek
+
+    ```{r}
+    {r}
+    min(cisnienie) # minimum
+    max(cisnienie) # maximum
+    mean(cisnienie) # srednia arytmetyczna 
+    mean(cisnienie, trim = 0.1) # srednia ucieta - dodajemy parametr trim, ktory ustala jaki
+                                # procent wartosci obcinamy z gory i z dolu
+    median(cisnienie) # mediana
+    mad(cisnienie) # median absolute deviation med{|x1 - med(x)|, |x2-med(x)|, ..., |xn - med(x)|}
+    var(cisnienie) # wariancja
+    sd(cisnienie) # odchylenie standardowe
+    IQR(cisnienie) # rozstep miedzykwartalowy
+    range(cisnienie) # najmniejsza i najwieksza wartosc w wektorze
+    diff(range(cisnienie)) #rozstep (roznica miedzy najmniejsza i najwieksza wartoscia)
+
+    # -------------------------------
+
+    # SREDNIA HARMONICZNA
+    # mozemy zaimplementowac 
+    length(cisnienie)/sum(1/cisnienie)
+    # lub skorzystac z pakietu "psych"
+    # install.packages("psych")
+    library(psych)
+    harmonic.mean(cisnienie)
+
+    # SREDNIA GEOMETRYCZNA
+    # mozemy zaimplementowac
+    prod(cisnienie)^(1/length(cisnienie)) # funkcja prod zwraca iloczyn wektora
+    # lub skorzystac z pakietu "psych"
+    geometric.mean(cisnienie)
+
+    # SREDNIA WINDSOROWSKA
+    mean(winsor(cisnienie, trim = 0.1))
+    # funkcja winsor zamienia zamienia wartosci z 0.1 z 0.9 kwartału na odpowiednia
+    # minimalna i maksymalna wartosc dla wartosci z kwartalow 0.2-0.9
+    # mozemy znow wykorzystac pakiet "psych"
+    winsor.mean(cisnienie, trim = 0.1)
+
+    # MODA
+    # mozemy zaimplementowac: 
+    # za pomoca funkcji table wyznaczamy czestosc wystepowania kazdej wartosci
+    as.numeric(names(table(cisnienie))[which.max(table(cisnienie))])
+    # lub skorzystac z pakietu "DescTools"
+    #install.packages("DescTools")
+    library(DescTools)
+    # funkcja Mode() zwraca wektor z najczesciej wystepujacymi wartosciami 
+    # przypisany jest atrybut freq, ktory zawiera czestosc wystepowania
+    # aby wypisac sam wektor stosujemy funkcje as.vector
+    as.vector(Mode(cisnienie))
+    attr(Mode(cisnienie), which= "freq") # aby uzyskac informacje o czestosci wystepowania
+                                         # wystarczy, ze wywolamy odpowiedni atrybut
+
+    # WSPOLCZYNNIK ZMIENNOSCI
+    # mozemy zaimplementowac: 
+    sd(cisnienie)/abs(mean(cisnienie))
+    # lub skorzystac z pakietu "geoveg"
+    #install.packages("goeveg")
+    library(goeveg)
+    cv(cisnienie)
+
+    # WSPOLCZYNNIK ASYMETRII (SKOSNOSC)
+    # mozemy zaimplementowac lub skorzystac z pakietow na trzy sposoby:
+
+    # skosnosc typu 1:
+    (mean(cisnienie)-median(cisnienie))/sd(cisnienie)
+    # korzystajac z pakietu "moments"
+    #install.packages("moments")
+    library(moments)
+    skewness(cisnienie)
+    # korzystajac z pakietu "psych"
+    skew(cisnienie, type = 1)
+
+    # skosnosc typu 2:
+    ((mean(cisnienie)-median(cisnienie))*sqrt(length(cisnienie)*(length(cisnienie)-1)))/(sd(cisnienie)*(length(cisnienie)-2))
+    # korzystajac z pakietu "psych"
+    skew(cisnienie, type = 2)
+
+    # skosnosc typu 3:
+    print("typ 3")
+    sum((cisnienie - mean(cisnienie))^3)/(length(cisnienie)*(sd(cisnienie)^3))
+    # korzystajac z pakietu "psych"
+    skew(cisnienie, type = 3)
+
+
+    (sum(quantile(cisnienie, probs = c(0.25, 0.75)))-2*median(cisnienie))/IQR(cisnienie)
+
+
+    # KURTOZA
+    # lub skorzystac z pakietu "moments"
+    kurtosis(cisnienie)
+    ```
+
+<!-- -->
+
+g)  Obliczyć i zinterpretować 5, 10, 25, 50, 75, 90 i 95 percentyl dla rozważanych danych.
+
+    ```{r}
+    quantile(cisnienie, 0.05)
+    quantile(cisnienie, 0.1)
+    quantile(cisnienie, 0.25)
+    quantile(cisnienie, 0.5)
+    quantile(cisnienie, 0.75)
+    quantile(cisnienie, 0.9)
+    quantile(cisnienie, 0.95)
+    ```
+
+h)  Wyznaczyć 10% średnią uciętą dla danych opisujących wytrzymałość butelek. Porównać średnią uciętą ze średnią arytmetyczną i medianą. Prześledzić, jak zmienia się wartość średniej wraz ze zmianą stopnia ucięcia próbki.
+
+    ```{r}
+    mean(cisnienie, trim = 0.1)
+    mean(cisnienie)
+
+    # istotnie z wynikow ze srednia ucieta przyjmuje mniejsza wartosc
+    # pokrywa sie to z przypuszczeniami, jakie moglibysmy miec na podstawie wykresu boxplot,
+    # na ktorym to widzielismy, ze outliers to wartosci znacznie wyzsze od innych, ktore
+    # zaklucaja wartosc sredniej przez zawyzenie
+
+    # jak zmienia sie wartosc sredniej wraz ze zmiana stopnia uciecia probki
+    trim_v <- seq(from = 0, to = 1, by = 0.00001)
+    mean_trim <- sapply(trim_v, function(trim) mean(cisnienie, trim = trim))
+
+    plot(trim_v, mean_trim, type = "l", col = color_palette2[3], lwd = 3,
+         xlab = "wartość ucięcia średniej", ylab = "średnia", 
+         main = "zmiana wartości średniej wraz ze zmianą stopnia ucięcia próbki")
+
+    ```

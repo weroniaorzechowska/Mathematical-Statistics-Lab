@@ -1,0 +1,681 @@
+---
+title: "Wybrane rozkłady Prawdopodobieństwa"
+output:
+  pdf_document:
+    latex_engine: xelatex
+author: "Weronia Orzechowska"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Wybrane rozkłady prawdopodobieństwa
+
+## Laboratorium 01
+
+```{r, include=FALSE}
+color_palette = c("#4D5A0B", "#F28092", "#F49345", "#FFBE98")
+```
+
+### Zadanie 1.
+
+Utworzyć wykresy gęstości, dystrybuanty i funkcji przeżycia dla zmiennych losowych o rozkładzie normalnym z parametrami:
+
+a)   N(0,1) , N(1,1) , N(2,1)
+
+```{r warning=FALSE, message=FALSE}
+
+curve(dnorm(x      ), -5, 5, col = color_palette[1], ylab = "f(x)") 
+# wartosci domyslne to N(0,1)
+curve(dnorm(x, 1, 1), -5, 5, col = color_palette[2], add = TRUE)
+curve(dnorm(x, 2, 1), -5, 5, col = color_palette[3], add = TRUE)
+title("wykresy gestosci")
+legend("topleft", c("N(0,1)", "N(1,1)", "N(1,2)"), fill = color_palette[1:3])
+
+curve(pnorm(x      ), -5, 7, col = color_palette[1], ylab = "F(x)") 
+curve(pnorm(x, 1, 1), -5, 7, col = color_palette[2], add = TRUE)
+curve(pnorm(x, 2, 1), -5, 7, col = color_palette[3], add = TRUE)
+title("wykresy dystrybuanty")
+legend("left", c("N(0,1)", "N(1,1)", "N(1,2)"), fill = color_palette[1:3])
+
+# funkcja przezycia: 1 - F(t) = P(X > t)
+# w funkcji pnrom dodajac argument lower.tail = FALSE prawdopodobienstwa liczone
+# jako P(X > t) [majac TRUE, liczymy P(X <= t)]
+curve(pnorm(x      , lower.tail = FALSE), -5, 7, col = color_palette[1],
+      ylab = "1 - F(x)") 
+curve(pnorm(x, 1, 1, lower.tail = FALSE), -5, 7, col = color_palette[2], add = TRUE)
+curve(pnorm(x, 2, 1, lower.tail = FALSE), -5, 7, col = color_palette[3], add = TRUE)
+title("wykresy funkcji przezycia")
+legend("left", c("N(0,1)", "N(1,1)", "N(1,2)"), fill = color_palette[1:3])
+```
+
+b)   N(0,1), N(0,0.5), N(0,2)
+
+```{r}
+curve(dnorm(x, 0, 0.5), -5, 5, col = color_palette[2], ylab = "f(x)") 
+curve(dnorm(x,       ), -5, 5, col = color_palette[1], add = TRUE)
+curve(dnorm(x, 0, 2  ), -5, 5, col = color_palette[3], add = TRUE)
+title("wykresy gęstości")
+legend("left", c("N(0,1)", "N(0,0.5)", "N(0,2)"), fill = color_palette[1:3])
+
+curve(pnorm(x        ), -5, 5, col = color_palette[1], ylab = "F(x)") 
+curve(pnorm(x, 0, 0.5), -5, 5, col = color_palette[2], add = TRUE)
+curve(pnorm(x, 0, 2  ), -5, 5, col = color_palette[3], add = TRUE)
+title("wykresy dystrybuanty")
+legend("left", c("N(0,1)", "N(0,0.5)", "N(0,2)"), fill = color_palette[1:3])
+
+curve(pnorm(x      ,   lower.tail = FALSE), -5, 5, col = color_palette[1], ylab = "1 - F(x)") 
+curve(pnorm(x, 0, 0.5, lower.tail = FALSE), -5, 5, col = color_palette[2], add = TRUE)
+curve(pnorm(x, 0, 2,   lower.tail = FALSE), -5, 5, col = color_palette[3], add = TRUE)
+title("wykresy funkcji przeżycia")
+legend("left", c("N(0,1)", "N(0,0.5)", "N(0,2)"), fill = color_palette[1:3])
+```
+
+### Zadanie 2.
+
+Sprawdzić tzw. regułę 3-sigmową dla rozkładu normalnego. Utworzyć graficzną ilustrację tej reguły
+
+```{r}
+# regula 3 sigm: dla danych o rozkladzie normalnym, prawie wszystkie punkty beda 
+# miescic sie w granicy trzech odchylen standardowych po obu stronach sredniej
+
+# tworzymy zmienne przechowujace wartosci na osi ox i oy
+x <- seq(-5, 5, 0.001)
+y <- dnorm(x)
+
+plot(x,y, type = "l", main = "reprezentacja reguly 3-sigmowej")
+
+# tworzymy zakres, ktory bedziemy kolorwac na wykresie
+x_fill <- c(-3, x[x >= -3 & x <= 3], 3)
+y_fill <- c(0,  y[x >= -3 & x <= 3], 0) # zero dodajemy, zeby wektory mialy taka
+                                        # sama dlugosc
+polygon(x_fill, y_fill, col = color_palette[4])
+abline(v = -3, col = color_palette[1])
+abline(v =  3, col = color_palette[1])
+```
+
+### Zadanie 3.
+
+Wzrost pewnej grupy osób opisany jest rozkładem normalnym o wartości oczekiwanej 173 cm i odchyleniu standardowym 6 cm.
+
+```{r warning=FALSE, message=FALSE}
+# ustalenie zmiennych pomocniczych
+mi <- 173 # wartosc oczekiwana
+sigma <- 6 # odchylenie standardowe
+```
+
+a)  Jakie jest prawdopodobieństwo, że losowo wybrana osoba ma nie więcej niż 179 cm wzrostu?
+
+```{r warning=FALSE, message=FALSE}
+# aby obliczyc takie prawdopodobienstwo uzywamy funkcji pnrom: dystrybuanta rozkladu normalnego
+# F(t) = P(X <= t)
+# w naszym przypadku, p = 179
+pnorm(179, mi, sigma)
+```
+
+b)  Jaka jest frakcja osób mających wzrost pomiędzy 167 i 180 cm?
+
+```{r warning=FALSE, message=FALSE}
+# P(167 < t <= 180) = F(180) - F(167)
+# ponownie uzyjemy funkcji pnorm
+pnorm(180, mi, sigma) - pnorm(167, mi, sigma)
+```
+
+c)  Jakie jest prawdopodobieństwo, że losowo wybrana osoba ma więcej niż 181 cm wzrostu?
+
+```{r warning=FALSE, message=FALSE}
+# P(X > t) = 1 - F(t)
+1 - pnorm(181, mi, sigma)
+```
+
+d)  Wyznaczyć wartość wzrostu, której nie przekracza 60% badanej populacji osób
+
+```{r warning=FALSE, message=FALSE}
+# wartosc, ktorej nie przkeracza 60% badanej populacji osób, czyli liczymy kwnatyl rozkładu normalnego
+qnorm(0.6, mi, sigma)
+```
+
+### Zadanie 4.
+
+Wyznaczyć wartości następujących kwantyli:
+
+a)  kwantyl rzędu 0,95 rozkładu standardowego normalnego
+
+b)  kwantyl rzędu 0,975 rozkładu standardowego normalnego
+
+c)  kwantyl rzędu 0,95 rozkładu t-Studenta o 10 stopniach swobody
+
+d)  kwantyl rzędu 0,99 rozkładu t-Studenta o 20 stopniach swobody
+
+e)  kwantyl rzędu 0,9 rozkładu chi-kwadrat o 4 stopniach swobody
+
+f)  kwantyl rzędu 0,95 rozkładu chi-kwadrat o 10 stopniach swobody
+
+g)  kwantyl rzędu 0,95 rozkładu F-Snedecora o (2, 10) stopniach swobody
+
+h)  kwantyl rzędu 0,99 rozkładu F-Snedecora o (3, 18) stopniach swobody.
+
+```{r warning=FALSE, message=FALSE}
+# a: mamy standardowy rozklad normalny - nie musimy podowac paramterow mi, sigma, poniewaz sa one domyslne
+qnorm(0.95)
+# b
+qnorm(0.975)
+# c: rozklad t-Studenta (dt, pt, qt, rt), wartosc stopni swobody przekazujemy pod parametrem df
+qt(0.95, df = 10)
+# d
+qt(0.99, df = 20)
+# e
+qchisq(0.9, df = 4)
+# f
+qchisq(0.95, df = 10)
+# g
+qf(0.95, df1 = 2, df2 = 10)
+# h
+qf(0.99, df1 = 3, df2 = 18)
+```
+
+### Zadanie 5.
+
+Utworzyć wykresy gęstości zmiennych losowych o rozkładzie gamma z parametrami:
+
+Sformułować wnioski dotyczące wpływu obu parametrów rozkładu na kształt wykresu gęstości
+
+a)  Γ(1,1) , Γ(0.5,1) , Γ(2,1) , Γ(3,1)
+
+```{r warning=FALSE, message=FALSE}
+curve(dgamma(x, 1  , 1), from = 0, to = 8, col = color_palette[1], 
+      ylab = "f(x)")
+curve(dgamma(x, 0.5, 1), from = 0, to = 8, col = color_palette[2], add = TRUE)
+curve(dgamma(x, 2  , 1), from = 0, to = 8, col = color_palette[3], add = TRUE)
+curve(dgamma(x, 3  , 1), from = 0, to = 8, col = color_palette[4], add = TRUE)
+title("wykresy gęstości dla rozkladu gamma")
+legend("topright", c("Γ(1,1)", "Γ(0.5,1)", "Γ(2,1)", "Γ(3,1)"), fill = color_palette[1:4])
+```
+
+Analizujemy rozkłady Γ(a,b)
+
+Na podstawie wykresu, widzimy, że dla a \<= 1 wykres przypomina kształtem wykres funkcji homograficznej.
+
+Już dla parametru a = 2 i a = 3 widzimy formującą się klasyczną "górkę". Warto zauważyć, że przy stałym parametrze b, wraz ze wzorstem parametru a, "górka" przesuwa się w prawo i wypłaszcza się.
+
+b)  Γ(2,1) , Γ(2,2) , Γ(2,3)
+
+```{r warning=FALSE, message=FALSE}
+curve(dgamma(x, 2, 3), from = 0, to = 8, col = color_palette[3], 
+      ylab = "f(x)")
+curve(dgamma(x, 2, 2), from = 0, to = 8, col = color_palette[2], add = TRUE)
+curve(dgamma(x, 2, 1), from = 0, to = 8, col = color_palette[1], add = TRUE)
+title("wykresy gęstości dla rozkladu gamma")
+legend("topright", c("Γ(2,1)", "Γ(2,2)", "Γ(2,3)"), fill = color_palette[1:3])
+```
+
+Na podstawie wykresu widzimy, że wartość parametru b odpowiada za wysokość "górki" oraz gwałtowność jej wzrostu i spadku.
+
+### Zadanie 6.
+
+a)  Utworzyć wykresy gęstości zmiennych losowych o rozkładzie chi-kwadrat o 5, 10 oraz 40 stopniach swobody. Przeanalizować, jak zmienia się gęstość rozkładu chi-kwadrat wraz ze wzrostem liczby stopni swobody
+
+```{r warning=FALSE, message=FALSE}
+curve(dchisq(x, 5 ), from = 0, to = 8, col = color_palette[1], 
+      ylab = "f(x)")
+curve(dchisq(x, 10), from = 0, to = 8, col = color_palette[2], add = TRUE)
+curve(dchisq(x, 40), from = 0, to = 8, col = color_palette[3], add = TRUE)
+title("wykresy gęstości dla rozkladu chi-kwadrat")
+legend("topright", c("chi_kwadrat(5)", "chi_kwadrat(10)", "chi_kwadrat(40)"), 
+       fill = color_palette[1:3])
+```
+
+Wraz ze wzrostem liczby stopni swobody wykres gęstości rozkladu chi-kwadrat wypłaszcza się
+
+b)  Przeprowadzić eksperyment symulacyjny pokazujący, że rozkład chi-kwadrat wraz ze wzrostem liczby stopni swobody zbiega do rozkładu normalnego
+
+```{r warning=FALSE, message=FALSE}
+
+# czemu dobieramy akurat takie wartosci odchylenia standarodwego i wartosci oczekiwanej?
+
+# z zadania 2.5 na statystyce wiemy, ze rozklad chi-kwadrat to szczegolny przypadek rozkladu
+# gamma z parametrami: gamma(n/2, 1/2)
+
+# wartosc oczekiwana i wariancja dla rozkladu gamma opisuja sie nastepujacymi wzorami:
+# E[X] = a/b = n
+# Var[X] = a/b^2 = n/2
+# poniewaz wariancja to kwadrat odchylenia standarodwego, stad sd = sqrt(n/2)
+
+par(mfrow = c(2,2))
+
+curve(dchisq(x, 5), from = -50, to = 50, col = color_palette[1], 
+      ylab = "f(x)")
+curve(dnorm(x, 5, sqrt(2*5)), from = -50, to = 50, col = color_palette[2], add = T)
+
+curve(dchisq(x, 10), from = -50, to = 50, col = color_palette[1], 
+      ylab = "f(x)")
+curve(dnorm(x, 5, sqrt(2*10)), from = -50, to = 50, col = color_palette[2], add = T)
+
+curve(dchisq(x, 100), from = 0, to = 200, col = color_palette[1], 
+      ylab = "f(x)")
+curve(dnorm(x, 100, sqrt(2*100)), from = 0, to = 200, col = color_palette[2], add = T)
+
+curve(dchisq(x, 1000), from = 0, to = 2000, col = color_palette[1], 
+      ylab = "f(x)")
+curve(dnorm(x, 1000, sqrt(2*1000)), from = 0, to = 2000, col = color_palette[2], add = T)
+
+mtext("Zbieżność rozkładu chi-kwadrat do rozkładu normlanego", 
+      side = 3, line = - 2, outer = TRUE)
+
+```
+
+### Zadanie 7.
+
+Utworzyć wykresy gęstości zmiennych losowych o rozkładzie t-Studenta z 1, 5 i 30 stopniami swobody. Porównać otrzymane wykresy z wykresem gęstości zmiennej losowej o rozkładzie normalnym
+
+```{r warning=FALSE, message=FALSE}
+curve(dt(x, 30), from = -8, to = 8, col = color_palette[3], ylab = "f(x)")
+curve(dt(x, 5 ), from = -8, to = 8, col = color_palette[2], add = TRUE)
+curve(dt(x, 1 ), from = -8, to = 8, col = color_palette[1], add = TRUE)
+title("wykresy gęstości dla rozkladu t-Studenta")
+legend("topright", c("T(1)", "T(5)", "T(30)"), 
+       fill = color_palette[1:3])
+
+curve(dnorm(x), from = -8, to = 8, col = color_palette[1], ylab = "f(x)")
+curve(dt(x, 1 ), from = -8, to = 8, col = color_palette[2], add = TRUE)
+curve(dt(x, 5 ), from = -8, to = 8, col = color_palette[3], add = TRUE)
+curve(dt(x, 30), from = -8, to = 8, col = color_palette[4], add = TRUE)
+title("porównanie z wykresem gęstości zmiennej losowej o rozkładzie normalnym", cex.main = 1)
+legend("topright", c("N(0,1)", "T(1)", "T(5)", "T(30)"), 
+       fill = color_palette[1:4])
+```
+
+Gestość rozkładu t-Studenta przy n (liczbie stopni swobody) dążącym do nieskończoności zbiega do rozkładu normalnego
+
+### Zadanie 8.
+
+Utworzyć wykresy gęstości zmiennych losowych o rozkładzie F Snedecora:
+
+a)  [10,5] F , [10,10] F , [10, 20] F
+
+```{r warning=FALSE, message=FALSE}
+curve(df(x, 10, 20), 0, 10, col = color_palette[3], ylab = "f(x)") 
+curve(df(x, 10, 10), 0, 10, col = color_palette[2], add = TRUE)
+curve(df(x, 10, 5 ), 0, 10, col = color_palette[1], add = TRUE)
+title("wykresy gęstości")
+legend("topright", c("F(10,5)", "F(10,10)", "F(10,20)"), fill = color_palette[1:3])
+```
+
+b)  [5, 2] F , [3, 2] F , [2, 2] F
+
+```{r warning=FALSE, message=FALSE}
+curve(df(x, 2, 2), 0, 10, col = color_palette[3], ylab = "f(x)") 
+curve(df(x, 3, 2), 0, 10, col = color_palette[2], add = TRUE)
+curve(df(x, 5, 2), 0, 10, col = color_palette[1], add = TRUE)
+title("wykresy gęstości")
+legend("topright", c("F(5,2)", "F(3,2)", "F(2,2)"), fill = color_palette[1:3])
+```
+
+c)  [2,1] F , [2, 5] F , [2,10] F , [2, 20] F
+
+```{r warning=FALSE, message=FALSE}
+curve(df(x, 2, 1 ), 0, 10, col = color_palette[1], ylab = "f(x)") 
+curve(df(x, 2, 10), 0, 10, col = color_palette[2], add = TRUE)
+curve(df(x, 2, 20), 0, 10, col = color_palette[3], add = TRUE)
+title("wykresy gęstości")
+legend("topright", c("F(2,1)", "F(2,10)", "F(2,20)"), fill = color_palette[1:3])
+```
+
+Porównać wykresy z punktu c. z wykresem gęstości rozkładu wykładniczego Exp(1)
+
+```{r warning=FALSE, message=FALSE}
+curve(dexp(x), 0, 10, col = color_palette[1], ylab = "f(x)") 
+curve(df(x, 2, 1 ), 0, 10, col = color_palette[2], add = TRUE)
+curve(df(x, 2, 10), 0, 10, col = color_palette[3], add = TRUE)
+curve(df(x, 2, 20), 0, 10, col = color_palette[4], add = TRUE)
+title("wykresy gęstości")
+legend("topright", c("Exp(1)", "F(2,1)", "F(2,10)", "F(2,20)"), fill = color_palette[1:4])
+```
+
+Widzimy, że gdy drugi stopień swobody dąży do nieskończoności gęstość rozkładu F-Snedecora zbiega do rozkładu wykładniczego z parametrem 1
+
+### Zadanie 9.
+
+Utworzyć wykresy gęstości zmiennych losowych o rozkładzie beta z parametrami Beta(1,1) , Beta(2, 2) , Beta(5, 2) i Beta(2,5) . Sformułować wnioski dotyczące wpływu obu parametrów rozkładu na kształt wykresu gęstości
+
+```{r warning=FALSE, message=FALSE}
+curve(dbeta(x, 5, 2), -1, 2, col = color_palette[1], ylab = "f(x)") 
+curve(dbeta(x, 2, 2), -1, 2, col = color_palette[2], add = TRUE)
+curve(dbeta(x, 2, 5), -1, 2, col = color_palette[3], add = TRUE)
+curve(dbeta(x, 1, 1), -1, 2, col = color_palette[4], add = TRUE)
+title("wykresy gęstości dla rozkładu Beta")
+legend("topright", c("Beta(5,2)", "Beta(2,2)", "Beta(2,5)", "Beta(1,1)"), 
+       fill = color_palette[1:4])
+```
+
+Analizy wykresy gęstości rozkładu Beta o parametrach Beta(a,b).
+
+Zauważmy, że dla a = b wykres jest symetryczny (względem prostej x = 0.5). Natomiast zamieniajac parametry a i b, czyli (a = b i b = a), wykres odbija się symetrycznie względem prostej x= 0.5
+
+Porównajmy teraz wykres gęstości Beta(2,2) z Beta(5,2). Widzimy, że wzrost paremtru b wywołał przesunięcie górki w prawo oraz jej wzrost. Porównując natomiast wykres gęstości Beta(2,2) z Beta(2,5) obserwujemy analogiczną sytuację, ale tym razem przesunięcie w lewo.
+
+### Zadanie 10.
+
+Sporządzić wykres funkcji masy prawdopodobieństwa rozkładów: Bin(10,0.5) , Bin(10,0.25) , Bin(50,0.25)
+
+```{r}
+x <- 0:15
+barplot(dbinom(x, 10, 0.5 ), ylim = c(0, 0.3), xlim = c(0, 20), 
+      col = color_palette[1], ylab = "p(x)") 
+barplot(dbinom(x, 10, 0.25), col = color_palette[2], add = TRUE)
+barplot(dbinom(x, 50, 0.25), col = color_palette[3], add = TRUE)
+title("wykresy masy prawdopodobieństwa rozkładu dwumianowego")
+legend("topright", c(" Bin(10,0.5)" , "Bin(10,0.25)" , "Bin(50,0.25)"), 
+       fill = color_palette[1:3])
+```
+
+### Zadanie 11.
+
+Średnio jedna na dziesięć osób mijających pewien sklep wchodzi do tego sklepu. Niech X oznacza numer pierwszej osoby, która weszła do sklepu, podczas gdy X −1 osób, które wcześniej mijały ów sklep, nie weszło do środka. Obliczyć prawdopodobieństwo tego, że: X = 1 , X = 2 , X = 3 , X = 4 oraz tego, że X będzie większy od 11
+
+```{r warning=FALSE, message=FALSE}
+# w tym zadaniu mamy rozklad geometryczny 
+# (dyskretny rozklad prawdopodobienstwa, opisujacy prawdopodobienstwo zdarzenia, ze w 
+#  k-tej probie wypadnie pierwszy sukces)
+
+# z zadania wiemy, ze do sklepu wchodzi 1/10 mijajacych go osob, zatem
+p = 0.1
+
+# dokumentacji, x to wartosc reprezentujaca liczbe porazek przed pierwszym sukcesem,
+# stad zamiast miec x <- seq(1:4), mamy:
+x <- seq(0:3)
+
+dgeom(x, p)
+```
+
+```{r warning=FALSE, message=FALSE}
+# P(t > 10) = 1 - F(10)
+# wykorzystamy tutaj parametr lower.tail
+# nadajac wartosc lower.tail = FALSE liczymy prawdopodobienstwo P(X > x)
+pgeom(10, p, lower.tail = FALSE)
+```
+
+### Zadanie 12.
+
+W partii towaru liczącej 200 sztuk znajduje się 5 sztuk niespełniających wymagań jakościowych. Jakie jest prawdopodobieństwo, że w losowej próbie 10 sztuk pobranych z tej partii nie znajdzie się ani jedna sztuka wadliwa?
+
+```{r warning=FALSE, message=FALSE}
+# w tym zadaniu uzyjemy rozkladu hipergeometrycznego
+
+# zmienna losowa o tym rozkladzie okresla liczbe elementow jednego typu wystepujacych
+# w n-elementowej probie, wylosowanej z urny zawierajacej m-elementow tego typu, wsrod
+# wszystkich N elementow
+# do zapisania wartosci uzyjemy zmiennych pomocniczych analogicznych do tych z 
+# dokumentacji
+
+x = 0 # liczba sztuk wadliwych w wylosowanej probie
+m = 5 # liczba sztuk wadliwych w calej partii
+n = 200 - 5 # liczba sztuk nie wadliwych w calej partii
+k = 10 # wielkosc wyciagnietej probki
+dhyper(x, m, n, k)
+```
+
+### Zadanie 13.
+
+Czas poprawnej pracy aparatu telefonicznego ma rozkład wykładniczy o intensywności awarii 0,0001 [1/h]
+
+a)  Obliczyć prawdopodobieństwo, że aparat ten nie uszkodzi się w ciągu: 1000, 10000, 30000 godzin pracy
+
+```{r warning=FALSE, message=FALSE}
+# rozklad wykladniczy opisuje sytuacje, w ktorej oczekujemy na zjawisko mogace zajsc w 
+# dowolnej chwili t
+x <- c(1000, 10000, 30000)
+1 - pexp(x, rate = 0.0001)
+
+# czemu bierzemy 1 - F(t) zamiast F(t)
+# szukamy prawdopodobienstwa, ze aparat nie uszkodzi się po n godzinach, natomiast 
+# wskaznik mowi o intensywnosci awarii
+# stad F(t) wyznaczy nam prawdopodobienstwo awarii po n godzinach
+```
+
+b)  Ile godzin powinien przepracować bezawaryjnie ten aparat z prawdopodobieństwem 0,9?
+
+```{r}
+# czyli po ilu godzinach pracy z prawdopodobienstwem 0.1 nastapi awaria
+# wykorzystujemy tutaj funkcje kwantylowa: bierzemy 0.1 kwantyl
+qexp(0.1, rate = 0.0001)
+```
+
+### Zadanie 14.
+
+Z dotychczasowych obserwacji wynika, że liczba klientów przybywających w ciągu godziny do oddziału banku ma rozkład Poissona o średniej 4 (klientów na godzinę).
+
+a)  Jaki jest rozkład prawdopodobieństwa czasu między przyjściem kolejnych klientów?
+
+```{r}
+
+l = 4
+
+# wazne jest aby zauwazyc, ze nie rusyjemy tutaj funkcji gestosci rozkladu Poissona, a rozkladu
+# wykladniczego
+
+# rozklad Poissona wyraza prawdopodobienstwo szeregu wydarzen majacych miejsce w okreslonym
+# czasie, gdy wystepuja ze znana srednia czestotliwoscia i w sposob niezalezny od czasu
+# jaki uplynal od ostatniego zajsca takiego zdarzenia
+
+# jesli liczba zajsc zdarzenia w danym przedziale czasu [0,t] jest zgodna z rozkladem 
+# Poissona ze srednia lt, wtedy dlugosc okresu oczekiwania pomiedzy zajsciami zdarzenia
+# ma rozklad wykladniczy ze srednia 1/l
+
+# zauwazmy teraz, ze wartosc oczekiwana (srednia) rozkladu wykladniczego z parametrem Exp(l)
+# wynosi 1/l
+
+# dlatego tez rysujemy wykres gestosci rozkladu wykladniczego z parametrem l=4
+
+curve(dexp(x, l), from = 0, to = 10, col = color_palette[2], ylab = "f(x)")
+title("rozklad prawdopodobienstwa czasu miedzy przyjsciem kolejnych klientow", cex.main = 1)
+```
+
+b)  Jaki jest średni czas oraz odchylenie standardowe czasu pomiędzy chwilami przybycia kolejnych klientów?
+
+```{r}
+# tutaj analogicznie do punktu a) analizujemy rozklad Exp(l)
+# zatem sredni czas to po prostu wartosc oczekiwana dana wzorem 1/l
+
+E = 1/l
+
+# odchylenie standarodwe to natomiast pierwiastek wariancji
+# dla rozkladu wykladniczego, Var[X] = 1/l^2, czyli sd = 1/l
+
+sd = 1/l
+```
+
+c)  Jeżeli w danej chwili do oddziału wszedł klient, to jakie jest prawdopodobieństwo, że w ciągu najbliższych 30 minut kolejny klient przybędzie do oddziału?
+
+```{r}
+# znowu analizujemy rozklad wykladniczy, poniewaz analizujemy czas miedzy przyjsciem
+# kolejnych klientow
+pexp(0.5, rate = 4)
+```
+
+d)  Jakie jest prawdopodobieństwo, że w ciągu godziny do oddziału banku nie przyjdzie ani jeden klient?
+
+```{r}
+# w tym przypadku odwolujemy sie juz do rozkladu Poissona, poniewaz analizujemy pewien
+# ciag zdarzen zadany w okreslonym czasie
+# lambda to 4 klientow na godzine 
+# biorac wiec x = 0 analizujemy zdarzenie, ze w ciagu godziny nie pojawil sie ani jeden klient
+ppois(0,4)
+
+# jednak mozemy do tego podejsc rowniez z poziomu rozkladu wykladniczego
+# liczymy prawdopodobienstwo, ze odstep czasu miedzy przyjsciem dwoch nastepnych klientow 
+# bedzie wiekszy od 1:
+# P(X > 1) = 1 - P(X <= 1) = 1 - F(1)
+1 - pexp(1,4)
+```
+
+### Zadanie 15.
+
+Posługując się metodą Monte Carlo obliczyć pola powierzchni następujących obszarów:
+
+Porównać uzyskane w ten sposób wyniki z dokładnymi rezultatami otrzymanymi na drodze analitycznej.
+
+a)  A = {(x, y)∈ R : 0 \< x \<1, 0 \< y \< x \^ 2 }
+
+```{r}
+# SCHEMAT METODY MONTE CARLO:
+# losujemy n punktow z kwadratu, w ktory wpisany jest obszar, ktorego pole chcemy obliczyc
+# nastepnie sprawdzamy ile z tych punktow nalezy do analizowanego obszaru
+# wynikiem losowania jest informacja, ze k z n prob bylo trafionych
+# pole opisuje sie wzorem: Pk = P(k/n) = P * mean(k), gdzie P to pole kwadratu, w ktory 
+# wpisalismy nasz obszar
+
+# zaczynamy od wygenerowania n losowych punktow znajdujaych sie w kwadracie [0,1]x[0,1]
+n <- 10000
+x <- runif(n, 0, 1)
+y <- runif(n, 0, 1)
+
+# ile punktow nalezy do obszaru A
+k <- y < x^2
+
+# wizualizacja
+plot(x, y, pch = '.', xlim = c(0, 1), ylim = c(0, 1), col = color_palette[4])
+points(x[k > 0], y[k > 0], col = color_palette[2], pch = ".")
+curve(x^2, col = color_palette[1], add = TRUE, lwd = 2)
+```
+
+```{r}
+# wyznaczamy pole
+Pa <- mean(k)
+Pa
+
+# porownanie z wynikiem otrzymanym analitycznie:
+Pa_analitycznie = 1/3
+
+# porownanie wyniku
+Pa_analitycznie - Pa # blad bezwzgledny
+(Pa_analitycznie - Pa)/Pa # blad wzgledny
+```
+
+b)  {A = {(x, y)∈ R : x \^ 2 \< y \<1− x \^2}
+
+```{r}
+n <- 10000
+x <- runif(n, 0, 1)
+y <- runif(n, 0, 1)
+
+k <- x^2 < y & y < 1- x^2
+
+point <- sqrt(1/2)
+
+plot(x, y, pch = '.', xlim = c(0, 1), ylim = c(0, 1), col = color_palette[4])
+points(x[k > 0], y[k > 0], col = color_palette[2], pch = ".")
+curve(x^2, from = 0, to = point, col = color_palette[1], add = TRUE, lwd = 2)
+curve(1 - x^2, from = 0, to = point, col = color_palette[1], add = TRUE, lwd = 2)
+```
+
+```{r}
+Pb <- mean(k)
+Pb
+
+Pb_analitycznie = sqrt(2)/3
+
+Pb_analitycznie - Pb # blad bezwzgledny
+(Pb_analitycznie - Pb)/Pb # blad wzgledny
+```
+
+Porównać uzyskane w ten sposób wyniki z dokładnymi rezultatami otrzymanymi na drodze analitycznej.
+
+## Cudowne chwile w zaciszu domowym
+
+### Zadanie 1.
+
+Utworzyć tablicę wartości dystrybuanty rozkładu standardowego normalnego
+
+```{r}
+# tworzymy macierz z 50 wierszami i dwiema kolumnami
+dystrybuanta_N_standarodwy <- matrix(nrow = 50, ncol = 2, byrow = TRUE)
+colnames(dystrybuanta_N_standarodwy) <- c("x", "F(x)")
+# generujemy ciag zmennych losowych, dla ktorych bedziemy liczyc wartosc dystrybuanty
+dystrybuanta_N_standarodwy[,1] <- seq(from = -5, to = 5, length.out = 50)
+# wyznaczamy wartosci dystrybuanty
+dystrybuanta_N_standarodwy[,2] <- dnorm(dystrybuanta_N_standarodwy[,1])
+```
+
+### Zadanie 2.
+
+Utworzyć tablicę podstawowych kwantyli (tzn. rzędu 0.9, 0.95, 0.975, 0.99, 0.995) rozkładu standardowego normalnego.
+
+```{r}
+kwantyle_N_standardowy <- matrix(nrow = 5, ncol = 2, byrow = TRUE)
+colnames(kwantyle_N_standardowy) <- c("rzad", "kwantyl")
+kwantyle_N_standardowy[,1] <- c(0.9, 0.95, 0.975, 0.99, 0.995)
+kwantyle_N_standardowy[,2] <- qnorm(kwantyle_N_standardowy[,1])
+```
+
+### Zadanie 3.
+
+Utworzyć tablicę podstawowych kwantyli (tzn. rzędu 0.9, 0.95, 0.975, 0.99, 0.995) rozkładu t-Studenta o różnych stopniach swobody
+
+```{r}
+kwantyle_t_Student <- matrix(nrow = 50, ncol = 6, byrow = TRUE)
+colnames(kwantyle_t_Student) <- c("stopnie swobody", "0.9",  "0.95", "0.975", "0.99", "0.995")
+kwantyle_t_Student[,1] <- seq(from = 1, by = 5, length.out = 50)
+kwantyle <- c(0.9, 0.95, 0.975, 0.99, 0.995)
+kwantyle_t_Student[, -1] <- t(apply(kwantyle_t_Student[, 1, drop = FALSE], 
+                                    1, function(df) qt(kwantyle, df)))
+```
+
+```{r}
+x <- c(1:10)
+y <- c(0.000098, 0.000065, 0.000057, 0.000042, 0.000038, 0.000039, 0.000044, 0.000040,  0.000040,  0.000039)
+  
+plot(x, y, type = "l", 
+     main = "Czas wykonania algorytmu Goertzela w zależności od stopnia wielomianu", 
+     cex.main = 0.9, 
+     xlab = "stopień wielomianu", 
+     ylab = "czas wykonania",
+     cex.lab = 0.8,       # Zmiana wielkości podpisów osi
+     lwd = 2,             # Pogrubienie linii
+     col = "#7878dd") 
+```
+
+```{r}
+x <- c(1:10)
+y <- c(0.160198, 0.196981, 0.225026, 0.248622, 0.255661, 0.273359, 0.302006, 0.325511,  0.348345,  0.371617)
+  
+plot(x, y, type = "l", 
+     main = "Czas wyznaczenia miejsc zerowych wielomianu w zależności od stopnia wielomianu", 
+     cex.main = 0.9, 
+     xlab = "stopień wielomianu", 
+     ylab = "czas wykonania",
+     cex.lab = 0.8,       # Zmiana wielkości podpisów osi
+     lwd = 2,             # Pogrubienie linii
+     col = "#7878dd") 
+```
+
+```{r}
+x <- c(0.001, 0.0001, 0.00001)
+y <- c(0.004666, 0.025541, 0.373833)
+  
+plot(x, y, type = "l", 
+     main = "Czas wyznaczenia miejsc zerowych wielomianu w zależności od stopnia dokładności", 
+     cex.main = 0.9, 
+     xlab = "stopień wielomianu", 
+     ylab = "czas wykonania",
+     cex.lab = 0.8,       # Zmiana wielkości podpisów osi
+     lwd = 2,             # Pogrubienie linii
+     col = "#7878dd") 
+```
+
+```{r}
+x <- c(0.01,0.005, 0.001,0.0005)
+y <- c(-2.17743396162338, -2.17784822302300, -2.17901575321665, -2.17901779223926)
+val <- -2.17883718694484
+y <- abs(y-val)
+
+plot(x, y, type = "l", 
+     main = "Błąd przybliżenia miejsca zerowego w zależności od stopnia dokładności", 
+     cex.main = 0.9, 
+     xlab = "stopień dokładności", 
+     ylab = "błąd przybliżenia",
+     cex.lab = 0.8,       # Zmiana wielkości podpisów osi
+     lwd = 2,             # Pogrubienie linii
+     col = "#7878dd") 
+```

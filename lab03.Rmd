@@ -1,0 +1,161 @@
+---
+title: "Untitled"
+output: html_document
+date: "2024-05-21"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Podstawy wnioskowania statystycznego, estymacja punktowa i przedziałowa
+
+## Laboratorium 03
+
+```{r include=FALSE}
+color_palette3 = c("#d65da2", "#838a22", "#f68f71", "#9fcdee", "#fdbb45")
+```
+
+### Zadanko 1.
+
+Wygenerować dwie próby losowe: 20 i 100 elementową, z rozkładu standardowego normalnego. Narysować dla obu prób dystrybuanty empiryczne i porównać je z odpowiednią dystrybuantą teoretyczną.
+
+```{r}
+# tworzymy dwie probki z rozkladu normalnego, odpowiednio 20 i 100 elementowe
+# mamy parametry domyslne, poniewaz rozwazamy rozklad standarodwy normalny
+x1 <- rnorm(n = 20)
+x2 <- rnorm(n = 100)
+
+# z lematu Gliwienki Cantallego wiemy, ze dystrybuanta empiryczna Fn dobrzy przybliza prawdziwa
+# dystrybuante F badanego rozkladu
+# zaobserwujmy to wiec na wykresach
+
+plot(ecdf(x1), col = color_palette3[5], main = "Zbieganie dystrybuanty empirycznej do teoretycznej", ylab = "wartość dystrybuanty")
+plot(ecdf(x2), col = color_palette3[4], add = TRUE)
+curve(pnorm(x), col = color_palette3[1], lwd = 2, add = TRUE)
+legend("topleft",legend = c("empiryczna n = 20", "empiryczna n = 100", "teoretyczna"), 
+       col = color_palette3[c(5,4,1)], lty = 1)
+```
+
+### Zadanko 2.
+
+Wygenerować 500-elementową próbę rozkładu standardowego Cauchy'ego (z parametrem położenia a = 0 i parametrem rozproszenia b = 1).
+
+```{r}
+# domyslnie wartosci parametru polozenia i paramteru rozproszenia to odpowiednio 0 i 1, 
+# dlaego ich nie podajemy
+
+# tworzymy zmienna z licznoscia probki
+N_c = 500
+# tworzymy 500 - elementowa probke rozkladu standardowego Cauchy'ego
+Y_c = rcauchy(n = 500) 
+```
+
+-   Dla każdej podpróbki zawierającej n początkowych elementów próbki wyjściowej, obliczyć średnią oraz medianę. Następnie przedstawić na wspólnym wykresie zbiory {X : n = 1 \< K \< 500} n i {Med : n = 1 \< K\< 500} n . Przeanalizować wpływ liczności próby na zachowanie sięśredniej oraz mediany z próby. Czy statystyki te wydają się być sensownymi estymatorami parametru położenia a w tym modelu?
+
+    ```{r}
+    # zainicjujmy dwa wektory, ktore beda przechowywac wartosci sredniej i mediany dla 
+    # kolejnych podprobek
+
+    srednia_c <- c()
+    mediana_c <- c()
+
+    # bedziemy mieli N podzbiorow: wielkosci kolejnych probek beda odpowiednio od 1 do N
+    # dla kazdej z probek liczymy w petli wartosc odpowiednio sredniej oraz mediany
+    for (i in 1:N_c){
+      srednia_c[i] <- mean(Y_c[1:i])
+      mediana_c[i] <- median(Y_c[1:i])
+    }
+
+    # tworzenie wykresu 
+    plot(x = 1:N_c, y = srednia_c, col = color_palette3[2], type = "l",
+         xlab = "x", ylab = "wartość estymatora", main = "liczność próbki a średnia i mediana")
+    lines(mediana_c, col = color_palette3[3])
+    abline(h = 0, col = color_palette3[4])
+    legend("bottomright", legend = c("średnia", "mediana"), col = color_palette3[2:3], lty = 1)
+
+    # na podstawie powstalego wykresu widzimy, ze mediana jest bardzo sensownym estymatorem
+    # wartosci a, poniewaz dla calej probki jej wartosc jest bardzo bliska 0
+    # w przypadku sredniej, jej wartosc faktycznie zbiega do 0 wraz ze zwiekszaniem 
+    # wielkosci probki
+    # !! wyniki moga sie subtelnie roznic w zaleznosci od probki - obserwacja
+    # skupia sie na zbieganiu wykresu do prostej a = 0
+    ```
+
+-   la każdej podpróbki zawierającej n początkowych elementów próbki wyjściowej obliczyć odchylenie standardowe Sn oraz odchylenie ćwiartkowe SQRn (gdzie SQR = IQR / 2 ). Następnie przedstawić na wspólnym wykresie zbiory {S : n = 1,K,500} n i {SQR : n = 1,K,500} n . Przeanalizować wpływ liczności próby na zachowanie się odchylenia standardowego i odchylenia ćwiartkowego. Czy statystyki te wydają się byćsensownymi estymatorami parametru rozproszenia b w tym modelu?
+
+    ```{r}
+    odchylenie_standardowe_c <- c()
+    odchylenie_cwiartkowe_c <- c()
+
+    for (i in 1:N_c){
+      odchylenie_standardowe_c[i] <- sd(Y_c[1:i])
+      odchylenie_cwiartkowe_c[i] <- IQR(Y_c[1:i])/2
+    }
+
+    # tworzenie wykresu 
+    plot(x = 1:N_c, y = odchylenie_standardowe_c, col = color_palette3[2], type = "l",
+         xlab = "x", ylab = "wartość estymatora", 
+         main = "liczność próbki a odchylenie standardowe i ćwiartkowe")
+    lines(odchylenie_cwiartkowe_c, col = color_palette3[3])
+    abline(h = 1, col = color_palette3[4])
+    legend("right", legend = c("sd", "IQR/2"), col = color_palette3[c(2,3)], lty = 1)
+
+    # no podstawie wykresu widzimy, ze odchylenie cwiartkowe jest dobrym estymatorem
+    # parametru roproszenia b, poniewaz jest bardzo blisko 1
+    # w przypadku odchylenia standarodwego widzimy, ze taki estymator mialby sens jedynie
+    # dla probki bardzo malego rozmiaru
+    ```
+
+### Zadanko 3.
+
+Wygenerować 500-elementową próbę 1 2 500 Y ,Y ,K,Y z rozkładu normalnego standardowego.
+
+```{r}
+N_n <- 500
+Y_n = rnorm(n = N_n)
+```
+
+-   Dla każdej podpróbki zawierającej n początkowych elementów próbki wyjściowej, tzn. dla ( , , ) Zn= Y1 K Yn , gdzie n = 1,K,500 , obliczyć średnią X n oraz medianę Medn . Następnie przedstawić na wspólnym wykresie zbiory {X : n = 1,K,500} n i {Med : n = 1,K,500} n . Przeanalizować wpływ liczności próby na zachowanie sięśredniej oraz mediany z próby. Czy statystyki te wydają się być sensownymi estymatorami wartości oczekiwanej w tym modelu?
+
+    ```{r}
+    srednia_n <- c()
+    mediana_n <- c()
+
+    for (i in 1:N_n){
+      srednia_n[i] <- mean(Y_n[1:i])
+      mediana_n[i] <- median(Y_n[1:i])
+      
+    }
+
+    plot(x = 1:N_n, y = srednia_n, col = color_palette3[2], type = "l")
+    lines(mediana_n, col = color_palette3[3])
+    abline(h = 0, col = color_palette3[4])
+    ```
+
+-   la każdej podpróbki zawierającej n początkowych elementów próbki wyjściowej, tzn. dla ( , , ) Cn= Y1 K Yn , gdzie n = 1,K,500 , obliczyć odchylenie standardowe Sn oraz dn= IQRn /1.35 , czyli rozstęp międzykwartylowy podzielony przez 1.35. Następnie przedstawić na wspólnym wykresie zbiory {S : n = 1,K,500} n i {d : n = 1,K,500} n . Przeanalizować wpływ liczności próby na zachowanie się odchylenia standardowego i rozstępu międzykwartylowego podzielonego przez 1.35. Czy statystyki te wydają się byćsensownymi estymatorami odchylenia standardowego w tym modelu?
+
+    ```{r}
+    odchylenie_standardowe_n <- c()
+    odchylenie_cwiartkowe_n <- c()
+
+    for (i in 1:N_n){
+      odchylenie_standardowe_n[i] <- sd(Y_n[1:i])
+      odchylenie_cwiartkowe_n[i] <- IQR(Y_n[1:i])/1.35
+    }
+
+    plot(x = 1:N_n, y = odchylenie_standardowe_n, col = color_palette3[2], type = "l", ylim = c(0, 2))
+    lines(odchylenie_cwiartkowe_n, col = color_palette3[3])
+    abline(h = 1, col = color_palette3[4])
+    ```
+
+### Zadanko 4.
+
+Wygenerować 10000 20-elementowych próbek z rozkładu jednostajnego na odcinku jednostkowym. Porównać empirycznie obciążenie i błąd średniokwadratowy estymatora momentów i estymatora największej wiarogodności parametru θ w rozkładzie jednostajnym U[0, θ].
+
+```{r, warning=FALSE}
+# generujemy 1000 20-elementowych probek
+
+```
+
+### Zadanko 5.
